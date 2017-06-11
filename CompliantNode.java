@@ -14,9 +14,9 @@ public class CompliantNode implements Node {
 	HashMap<Transaction, Set<Integer>> newCandidates; // all candidate Txs received from followees
 	
 
-	final int numRounds;
 	final double p_malicious;
 	final double p_txDistribution;
+	final int numRounds;
 	
 	int round;
 	int numFollowees;
@@ -25,8 +25,9 @@ public class CompliantNode implements Node {
     public CompliantNode(double p_graph, double p_malicious, double p_txDistribution, int numRounds) {
         // IMPLEMENT THIS
     	this.p_malicious = p_malicious;
-    	this.numRounds = numRounds;
     	this.p_txDistribution = p_txDistribution;
+
+    	this.numRounds = numRounds;
     	
     	round = 0;
     	numFollowees = 0;
@@ -45,10 +46,10 @@ public class CompliantNode implements Node {
     			++numFollowees;
     	}
     	
-    	seenThreshold = 2; // FIXME (int)(numFollowees * p_malicious);	// truncate decimal value
+    	seenThreshold = (int)((numFollowees - 1) * p_malicious);	// truncate decimal value
     	
-    	//System.err.println("Followees: " + numFollowees);
-    	//System.err.println("Seen Threshold: " + seenThreshold);
+    	System.err.println("Followees: " + numFollowees);
+    	System.err.println("Seen Threshold: " + seenThreshold);
     }
 
     /** initialize proposal list of transactions */
@@ -64,14 +65,20 @@ public class CompliantNode implements Node {
      */
     public Set<Transaction> sendToFollowers() {
         // IMPLEMENT THIS
-    	return validTxs;
-    	/*
+    	//return validTxs;
+    	
     	if (round < numRounds)
-    		return validTxs;
+    		return allTxs;
     	else {
+			for (Transaction tx : newCandidates.keySet()) {
+				Set<Integer> senders = newCandidates.get(tx);
+				if (senders.size() >= seenThreshold) {
+					validTxs.add(tx);
+				}
+			}
+
     		return validTxs;
     	}
-    	*/
     }
 
     /** receive candidates from other nodes. */
@@ -97,36 +104,29 @@ public class CompliantNode implements Node {
     		if (!followees[c.sender])
     			continue;
     		
-    		// if this candidate tx on the validTxs list, leave it there.
-    		// if not, add it to the newTxs list
-    		if (!validTxs.contains(c.tx)) {
-    			Set<Integer> senders = newCandidates.get(c.tx);
-    			if (senders == null) {
-    				senders = new HashSet<Integer>();
-    				senders.add(c.sender);
-    				newCandidates.put(c.tx, senders);
-    			}
-    			else if (!senders.contains(c.sender)) {
-    				senders.add(c.sender);
-    				newCandidates.put(c.tx, senders);
-    			}
-    		}
-    	}
-    	
-    	// Test for candidate Txs from more than one other node 
-    	for (Transaction tx: newCandidates.keySet()) {
-    		Set<Integer> senders = newCandidates.get(tx);
-    		if (senders.size() >= seenThreshold) {
-    			// allTxs.add(tx);
-    			validTxs.add(tx);
-    		}
-    		/*
-    		else if (senders.size() >= (int)(seenThreshold * p_txDistribution)) {
-    			// The difference between this and broadcasting all txs was nil
-        		allTxs.add(tx);
-    		}
-    		*/
-    	}
-    }
+    		allTxs.add(c.tx);		// Send along every tx we get
+    		
+    		// Record all inbound Txs along with the number of nodes that have sent them
+			Set<Integer> senders = newCandidates.get(c.tx);
+			if (senders == null) {
+				senders = new HashSet<Integer>();
+				senders.add(c.sender);
+				newCandidates.put(c.tx, senders);
+			} else if (!senders.contains(c.sender)) {
+				senders.add(c.sender);
+				newCandidates.put(c.tx, senders);
+			}
+
+			/*
+			// Test for candidate Txs from more than one other node
+			for (Transaction tx : newCandidates.keySet()) {
+				senders = newCandidates.get(tx);
+				if (senders.size() >= seenThreshold) {
+					allTxs.add(tx);
+				}
+			}
+			*/
+		}
+	}
     
 }
