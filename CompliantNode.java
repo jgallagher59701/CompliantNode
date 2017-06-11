@@ -9,14 +9,14 @@ public class CompliantNode implements Node {
 	boolean[] followees;		// Graph connection; these nodes send this node txs
 	Set<Transaction> validTxs;	// This nodes starting set; assumed to be valid
 	
-	// TODO Set<Transaction> likelyTxs; // The current set of ...
 	Set<Transaction> allTxs;	// The set of all transactions
-	//Set<Candidate> newCandidates;	// The set of newly proposed txs
-	HashMap<Transaction, Set<Integer>> newCandidates; //= new HashMap<>();
+
+	HashMap<Transaction, Set<Integer>> newCandidates; // all candidate Txs received from followees
 	
 
 	final int numRounds;
 	final double p_malicious;
+	final double p_txDistribution;
 	
 	int round;
 	int numFollowees;
@@ -26,12 +26,12 @@ public class CompliantNode implements Node {
         // IMPLEMENT THIS
     	this.p_malicious = p_malicious;
     	this.numRounds = numRounds;
+    	this.p_txDistribution = p_txDistribution;
     	
     	round = 0;
     	numFollowees = 0;
     	seenThreshold = 0;
     	
-    	//newCandidates = new HashSet<Candidate>();
     	newCandidates = new HashMap<Transaction, Set<Integer>>();
     }
 
@@ -47,8 +47,8 @@ public class CompliantNode implements Node {
     	
     	seenThreshold = (int)(numFollowees * p_malicious);	// truncate decimal value
     	
-    	System.err.println("Followees: " + numFollowees);
-    	System.err.println("Seen Threshold: " + seenThreshold);
+    	//System.err.println("Followees: " + numFollowees);
+    	//System.err.println("Seen Threshold: " + seenThreshold);
     }
 
     /** initialize proposal list of transactions */
@@ -65,9 +65,9 @@ public class CompliantNode implements Node {
     public Set<Transaction> sendToFollowers() {
         // IMPLEMENT THIS
     	if (round < numRounds)
-    		return allTxs;
+    		return validTxs;
     	else {
-    		System.err.println("returning valid Txs: " + validTxs.size() + ", allTxs: " + allTxs.size());
+    		//System.err.println("returning valid Txs: " + validTxs.size() + ", allTxs: " + allTxs.size());
     		return validTxs;
     	}
     }
@@ -86,12 +86,10 @@ public class CompliantNode implements Node {
     	// (or some fraction of the followees proposed it)
     	
     	// Alg0. Everything is good if it comes from a followee
-    	/*
     	for (Candidate c: candidates) {
     		if (followees[c.sender])
     			validTxs.add(c.tx);
     	}
-    	 */
     	
     	//
     	// Alg1. 
@@ -100,12 +98,10 @@ public class CompliantNode implements Node {
     	// and it has only been seen from one followee.
     	// A candidate from some threshold number of followees is assumed valid
     	// Only Txs assumed valid are sent to followers
-    	
+    	/*
     	for (Candidate c: candidates) {
     		if (!followees[c.sender])
     			continue;
-    		
-    		allTxs.add(c.tx);	// broadcast all txs we get.
     		
     		// if this candidate tx on the validTxs list, leave it there.
     		// if not, add it to the newTxs list
@@ -126,8 +122,15 @@ public class CompliantNode implements Node {
     	// Test for candidate Txs from more than one other node 
     	for (Transaction tx: newCandidates.keySet()) {
     		Set<Integer> senders = newCandidates.get(tx);
-    		if (senders.size() >= seenThreshold)
+    		if (senders.size() >= seenThreshold) {
+    			allTxs.add(tx);
     			validTxs.add(tx);
+    		}
+    		else if (senders.size() >= (int)(seenThreshold * p_txDistribution)) {
+    			// The difference between this and broadcasting all txs was nil
+        		allTxs.add(tx);
+    		}
     	}
+    	*/
     }
 }
