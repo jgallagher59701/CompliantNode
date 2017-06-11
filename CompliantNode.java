@@ -45,7 +45,7 @@ public class CompliantNode implements Node {
     			++numFollowees;
     	}
     	
-    	seenThreshold = (int)(numFollowees * p_malicious);	// truncate decimal value
+    	seenThreshold = 2; // FIXME (int)(numFollowees * p_malicious);	// truncate decimal value
     	
     	//System.err.println("Followees: " + numFollowees);
     	//System.err.println("Seen Threshold: " + seenThreshold);
@@ -64,41 +64,35 @@ public class CompliantNode implements Node {
      */
     public Set<Transaction> sendToFollowers() {
         // IMPLEMENT THIS
+    	return validTxs;
+    	/*
     	if (round < numRounds)
     		return validTxs;
     	else {
-    		//System.err.println("returning valid Txs: " + validTxs.size() + ", allTxs: " + allTxs.size());
     		return validTxs;
     	}
+    	*/
     }
 
     /** receive candidates from other nodes. */
     public void receiveFromFollowees(Set<Candidate> candidates) {
         // IMPLEMENT THIS
     	++round;
-    	
-    	// A Candidate transaction is valid if its id is in the list of validTxs
-    	// build by the simulator (which this node does not know). 
-    	//
-    	// A Candidate Tx is valid if:
-    	// it's Hash matches that of a known valid Tx
-    	// two or more nodes have proposed it 
-    	// (or some fraction of the followees proposed it)
-    	
+    	    	
     	// Alg0. Everything is good if it comes from a followee
+    	/*
     	for (Candidate c: candidates) {
     		if (followees[c.sender])
     			validTxs.add(c.tx);
     	}
-    	
-    	//
+    	*/
+
     	// Alg1. 
     	// The initial Txs are all valid
     	// A candidate Tx is held in a buffer if it's not on the valid list
-    	// and it has only been seen from one followee.
     	// A candidate from some threshold number of followees is assumed valid
     	// Only Txs assumed valid are sent to followers
-    	/*
+    	
     	for (Candidate c: candidates) {
     		if (!followees[c.sender])
     			continue;
@@ -123,14 +117,16 @@ public class CompliantNode implements Node {
     	for (Transaction tx: newCandidates.keySet()) {
     		Set<Integer> senders = newCandidates.get(tx);
     		if (senders.size() >= seenThreshold) {
-    			allTxs.add(tx);
+    			// allTxs.add(tx);
     			validTxs.add(tx);
     		}
+    		/*
     		else if (senders.size() >= (int)(seenThreshold * p_txDistribution)) {
     			// The difference between this and broadcasting all txs was nil
         		allTxs.add(tx);
     		}
+    		*/
     	}
-    	*/
     }
+    
 }
