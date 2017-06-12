@@ -118,6 +118,12 @@ public class CompliantNode implements Node {
 		}
     	
     	// A node that does not send any Txs in the first round is malicious 
+    	// Other ideas:
+    	// Nodes not communicating at all
+    	// Nodes communicating only its own initial transactions
+    	// Nodes communicating transactions randomly
+    	// Nodes communicating only at the final round
+    	// Nodes communicating only at even or odd rounds
     	for (int i = 0; i < nodes; ++i) {
     		if (followees[i]) {
     			Set<Transaction> txs  = followeeCandidates.get(i);
