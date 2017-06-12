@@ -37,6 +37,11 @@ public class CompliantNode implements Node {
     	seenThreshold = 0;
     	
     	candidatesFromFollowee = new HashMap<Transaction, Set<Integer>>();
+    	followeeCandidates = new HashMap<Integer, Set<Transaction>>();
+    	
+    	malicious = new boolean[500];
+    	for (int i = 0; i < 500; ++i)
+    		malicious[i] = false;
     }
 
     /** {@code followees[i]} is true if and only if this node follows node {@code i} */
@@ -90,10 +95,9 @@ public class CompliantNode implements Node {
         // IMPLEMENT THIS
     	++round;
     	    	
-    	// Alg2. Identify malicious nodes
-    	// A node that does not send any Txs in the first round is malicious    	
+    	// Alg2. Identify malicious nodes   	
     	for (Candidate c: candidates) {
-    		if (!followees[c.sender])
+    		if (!followees[c.sender] || malicious[c.sender])
     			continue;
     		
     		allTxs.add(c.tx);		// Send along every tx we get
@@ -110,6 +114,7 @@ public class CompliantNode implements Node {
 			}
 		}
     	
+    	// A node that does not send any Txs in the first round is malicious 
     	
 	}
     
