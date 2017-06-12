@@ -19,6 +19,8 @@ public class CompliantNode implements Node {
 	final double p_txDistribution;
 	final int numRounds;
 	
+	final int nodes = 100;
+	
 	int round;
 	int numFollowees;
 	int seenThreshold;
@@ -39,8 +41,8 @@ public class CompliantNode implements Node {
     	candidatesFromFollowee = new HashMap<Transaction, Set<Integer>>();
     	followeeCandidates = new HashMap<Integer, Set<Transaction>>();
     	
-    	malicious = new boolean[500];
-    	for (int i = 0; i < 500; ++i)
+    	malicious = new boolean[nodes];
+    	for (int i = 0; i < nodes; ++i)
     		malicious[i] = false;
     }
 
@@ -73,8 +75,8 @@ public class CompliantNode implements Node {
      */
     public Set<Transaction> sendToFollowers() {
         // IMPLEMENT THIS
-    	//return validTxs;
-    	
+    	return validTxs;
+    	/*
     	if (round < numRounds)
     		return allTxs;
     	else {
@@ -88,6 +90,7 @@ public class CompliantNode implements Node {
 
     		return validTxs;
     	}
+    	*/
     }
 
     /** receive candidates from other nodes. */
@@ -100,7 +103,7 @@ public class CompliantNode implements Node {
     		if (!followees[c.sender] || malicious[c.sender])
     			continue;
     		
-    		allTxs.add(c.tx);		// Send along every tx we get
+    		validTxs.add(c.tx);		// Send along every tx we get
     		
     		// HashMap<Integer, Set<Transaction>> followeeCandidates;	// all followees and the Txs they have sent
     		Set<Transaction> txs = followeeCandidates.get(c.sender);
@@ -115,7 +118,13 @@ public class CompliantNode implements Node {
 		}
     	
     	// A node that does not send any Txs in the first round is malicious 
-    	
+    	for (int i = 0; i < nodes; ++i) {
+    		if (followees[i]) {
+    			Set<Transaction> txs  = followeeCandidates.get(i);
+    			if (txs == null)
+    				malicious[i] = true;
+    		}
+    	}
 	}
     
 }
