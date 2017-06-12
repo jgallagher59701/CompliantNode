@@ -11,8 +11,9 @@ public class CompliantNode implements Node {
 	
 	Set<Transaction> allTxs;	// The set of all transactions
 
-	HashMap<Transaction, Set<Integer>> newCandidates; // all candidate Txs received from followees
+	HashMap<Transaction, Set<Integer>> candidatesFromFollowee; // all Txs received from which followees
 	
+	HashMap<Integer, Set<Transaction>> followeeCandidates;	// all followees and the Txs they have sent
 
 	final double p_malicious;
 	final double p_txDistribution;
@@ -21,6 +22,8 @@ public class CompliantNode implements Node {
 	int round;
 	int numFollowees;
 	int seenThreshold;
+	
+	boolean[] malicious;
 	
     public CompliantNode(double p_graph, double p_malicious, double p_txDistribution, int numRounds) {
         // IMPLEMENT THIS
@@ -33,7 +36,7 @@ public class CompliantNode implements Node {
     	numFollowees = 0;
     	seenThreshold = 0;
     	
-    	newCandidates = new HashMap<Transaction, Set<Integer>>();
+    	candidatesFromFollowee = new HashMap<Transaction, Set<Integer>>();
     }
 
     /** {@code followees[i]} is true if and only if this node follows node {@code i} */
@@ -70,8 +73,8 @@ public class CompliantNode implements Node {
     	if (round < numRounds)
     		return allTxs;
     	else {
-			for (Transaction tx : newCandidates.keySet()) {
-				Set<Integer> senders = newCandidates.get(tx);
+			for (Transaction tx : candidatesFromFollowee.keySet()) {
+				Set<Integer> senders = candidatesFromFollowee.get(tx);
 				if (senders.size() >= seenThreshold) {
 					validTxs.add(tx);
 				}
@@ -107,26 +110,20 @@ public class CompliantNode implements Node {
     		allTxs.add(c.tx);		// Send along every tx we get
     		
     		// Record all inbound Txs along with the number of nodes that have sent them
-			Set<Integer> senders = newCandidates.get(c.tx);
+			Set<Integer> senders = candidatesFromFollowee.get(c.tx);
 			if (senders == null) {
 				senders = new HashSet<Integer>();
 				senders.add(c.sender);
-				newCandidates.put(c.tx, senders);
+				candidatesFromFollowee.put(c.tx, senders);
 			} else if (!senders.contains(c.sender)) {
 				senders.add(c.sender);
-				newCandidates.put(c.tx, senders);
+				candidatesFromFollowee.put(c.tx, senders);
 			}
-
-			/*
-			// Test for candidate Txs from more than one other node
-			for (Transaction tx : newCandidates.keySet()) {
-				senders = newCandidates.get(tx);
-				if (senders.size() >= seenThreshold) {
-					allTxs.add(tx);
-				}
-			}
-			*/
 		}
+    	
+    	// Alg2. Identify malicious nodes
+    	// A node that does not send any Txs in the first round is malicious
+    	
 	}
     
 }
