@@ -73,6 +73,7 @@ public class CompliantNode implements Node {
     	if (round < numRounds)
     		return allTxs;
     	else {
+    		// FIXME
 			for (Transaction tx : candidatesFromFollowee.keySet()) {
 				Set<Integer> senders = candidatesFromFollowee.get(tx);
 				if (senders.size() >= seenThreshold) {
@@ -89,40 +90,26 @@ public class CompliantNode implements Node {
         // IMPLEMENT THIS
     	++round;
     	    	
-    	// Alg0. Everything is good if it comes from a followee
-    	/*
-    	for (Candidate c: candidates) {
-    		if (followees[c.sender])
-    			validTxs.add(c.tx);
-    	}
-    	*/
-
-    	// Alg1. 
-    	// The initial Txs are all valid
-    	// A candidate Tx is held in a buffer if it's not on the valid list
-    	// A candidate from some threshold number of followees is assumed valid
-    	// Only Txs assumed valid are sent to followers
-    	
+    	// Alg2. Identify malicious nodes
+    	// A node that does not send any Txs in the first round is malicious    	
     	for (Candidate c: candidates) {
     		if (!followees[c.sender])
     			continue;
     		
     		allTxs.add(c.tx);		// Send along every tx we get
     		
-    		// Record all inbound Txs along with the number of nodes that have sent them
-			Set<Integer> senders = candidatesFromFollowee.get(c.tx);
-			if (senders == null) {
-				senders = new HashSet<Integer>();
-				senders.add(c.sender);
-				candidatesFromFollowee.put(c.tx, senders);
-			} else if (!senders.contains(c.sender)) {
-				senders.add(c.sender);
-				candidatesFromFollowee.put(c.tx, senders);
+    		// HashMap<Integer, Set<Transaction>> followeeCandidates;	// all followees and the Txs they have sent
+    		Set<Transaction> txs = followeeCandidates.get(c.sender);
+			if (txs == null) {
+				txs = new HashSet<Transaction>();
+				txs.add(c.tx);
+				followeeCandidates.put(c.sender, txs);
+			} else if (!txs.contains(c.tx)) {
+				txs.add(c.tx);
+				followeeCandidates.put(c.sender, txs);
 			}
 		}
     	
-    	// Alg2. Identify malicious nodes
-    	// A node that does not send any Txs in the first round is malicious
     	
 	}
     
