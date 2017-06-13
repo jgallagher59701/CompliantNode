@@ -57,7 +57,7 @@ public class CompliantNode implements Node {
     	}
     	// TODO: Evaluate different values for this. 
     	// TODO: Maybe make this a function of the actual number of followees?
-    	roundsThreshold = 5;
+    	roundsThreshold = 4;
     }
 
     /** {@code followees[i]} is true if and only if this node follows node {@code i} */
